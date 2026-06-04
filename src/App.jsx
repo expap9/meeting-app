@@ -14,6 +14,7 @@ function App() {
         <Route path="/thank-you" element={<ThankYou />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/create" element={<AdminMeetingForm />} />
+        <Route path="/admin/edit/:id" element={<AdminMeetingForm />} />
       </Routes>
     </div>
   );

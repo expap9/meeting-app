@@ -99,6 +99,15 @@ export default function Home() {
           ))}
         </div>
       )}
+      {/* Contact Section */}
+      {!loading && (settings.contactName || settings.contactPhone || settings.contactEmail) && (
+        <div style={{ marginTop: '5rem', padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>ติดต่อสอบถามเพิ่มเติม</h3>
+          {settings.contactName && <p style={{ color: 'var(--text-muted)' }}><strong>ผู้รับผิดชอบ:</strong> {settings.contactName}</p>}
+          {settings.contactPhone && <p style={{ color: 'var(--text-muted)' }}><strong>โทรศัพท์:</strong> {settings.contactPhone}</p>}
+          {settings.contactEmail && <p style={{ color: 'var(--text-muted)' }}><strong>อีเมล:</strong> {settings.contactEmail}</p>}
+        </div>
+      )}
     </div>
   );
 }

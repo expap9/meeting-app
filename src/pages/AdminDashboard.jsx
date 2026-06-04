@@ -4,7 +4,13 @@ import { FaPlus, FaTrash, FaCog, FaHistory } from 'react-icons/fa';
 
 export default function AdminDashboard() {
   const [meetings, setMeetings] = useState([]);
-  const [settings, setSettings] = useState({ siteTitle: '', siteSubtitle: '' });
+  const [settings, setSettings] = useState({ 
+    siteTitle: '', 
+    siteSubtitle: '',
+    contactName: '',
+    contactPhone: '',
+    contactEmail: ''
+  });
   const [loading, setLoading] = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
   const [activeTab, setActiveTab] = useState('active'); // active, history, settings
@@ -82,9 +88,34 @@ export default function AdminDashboard() {
                 <label className="form-label">คำอธิบายย่อย (Site Subtitle)</label>
                 <input 
                   type="text" className="form-input" 
-                  value={settings.siteSubtitle} 
+                  value={settings.siteSubtitle || ''} 
                   onChange={e => setSettings({...settings, siteSubtitle: e.target.value})}
                   required 
+                />
+              </div>
+              <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>ข้อมูลติดต่อผู้รับผิดชอบ</h3>
+              <div className="form-group">
+                <label className="form-label">ชื่อผู้รับผิดชอบ</label>
+                <input 
+                  type="text" className="form-input" 
+                  value={settings.contactName || ''} 
+                  onChange={e => setSettings({...settings, contactName: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">เบอร์โทรศัพท์ติดต่อ</label>
+                <input 
+                  type="text" className="form-input" 
+                  value={settings.contactPhone || ''} 
+                  onChange={e => setSettings({...settings, contactPhone: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">อีเมลติดต่อ</label>
+                <input 
+                  type="email" className="form-input" 
+                  value={settings.contactEmail || ''} 
+                  onChange={e => setSettings({...settings, contactEmail: e.target.value})}
                 />
               </div>
               <button type="submit" className="btn btn-primary" disabled={savingSettings}>
@@ -119,7 +150,10 @@ export default function AdminDashboard() {
                     <tr key={m.id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '1rem' }}>{m.title}</td>
                       <td style={{ padding: '1rem' }}>{m.date}</td>
-                      <td style={{ padding: '1rem' }}>
+                      <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                        <Link to={`/admin/edit/${m.id}`} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
+                          แก้ไข
+                        </Link>
                         <button onClick={() => handleDelete(m.id)} className="btn btn-secondary" style={{ color: 'var(--danger)', padding: '0.5rem 1rem' }}>
                           <FaTrash /> ลบ
                         </button>
