@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import ThankYou from './pages/ThankYou';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminMeetingForm from './pages/AdminMeetingForm';
+import AdminAuth from './components/AdminAuth';
 
 function App() {
   return (
@@ -12,9 +13,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register/:id" element={<Register />} />
         <Route path="/thank-you" element={<ThankYou />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/create" element={<AdminMeetingForm />} />
-        <Route path="/admin/edit/:id" element={<AdminMeetingForm />} />
+        <Route path="/admin" element={<AdminAuth><AdminDashboard /></AdminAuth>} />
+        <Route path="/admin/create" element={<AdminAuth><AdminMeetingForm /></AdminAuth>} />
+        <Route path="/admin/edit/:id" element={<AdminAuth><AdminMeetingForm /></AdminAuth>} />
       </Routes>
     </div>
   );
