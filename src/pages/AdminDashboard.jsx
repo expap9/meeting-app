@@ -177,13 +177,22 @@ export default function AdminDashboard() {
                   <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
                     <th style={{ padding: '1rem' }}>ชื่อการประชุม</th>
                     <th style={{ padding: '1rem' }}>วันที่</th>
+                    <th style={{ padding: '1rem' }}>จัดการ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {historyMeetings.map(m => (
-                    <tr key={m.id} style={{ borderBottom: '1px solid var(--border)', opacity: '0.7' }}>
+                    <tr key={m.id} style={{ borderBottom: '1px solid var(--border)', opacity: '0.8' }}>
                       <td style={{ padding: '1rem' }}>{m.title}</td>
                       <td style={{ padding: '1rem' }}>{m.date}</td>
+                      <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                        <Link to={`/admin/edit/${m.id}`} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>
+                          แก้ไข
+                        </Link>
+                        <button onClick={() => handleDelete(m.id)} className="btn btn-secondary" style={{ color: 'var(--danger)', padding: '0.5rem 1rem' }}>
+                          <FaTrash /> ลบ
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
