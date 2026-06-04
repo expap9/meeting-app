@@ -25,23 +25,28 @@ export default function AdminMeetingForm() {
 
   useEffect(() => {
     if (isEditMode) {
-      // In production, fetch specific meeting details
-      // api.get('getMeetingDetails&id=' + id).then(data => setFormData(data))
-      
-      // Mock data for demo
-      setTimeout(() => {
-        setFormData({
-          title: 'การประชุมวิชาการประจำปี 2026',
-          description: 'อัปเดตเทคโนโลยีทางการแพทย์',
-          date: '15 ก.ค. 2026',
-          time: '09:00 - 16:00 น.',
-          location: 'ห้องประชุมใหญ่',
-          speakerName: 'นพ. สมชาย ใจดี',
-          deadline: '2026-07-10T23:59',
-          documentUrl: '',
-          speakerPhotoUrl: ''
-        });
-      }, 500);
+      const fetchMeeting = async () => {
+        try {
+          const meetings = await api.get('getMeetings');
+          const meeting = meetings.find(m => String(m.id) === String(id));
+          if (meeting) {
+            setFormData({
+              title: meeting.title || '',
+              description: meeting.description || '',
+              date: meeting.date || '',
+              time: meeting.time || '',
+              location: meeting.location || '',
+              speakerName: meeting.speakerName || '',
+              deadline: meeting.deadline || '',
+              documentUrl: meeting.documentUrl || '',
+              speakerPhotoUrl: meeting.speakerPhotoUrl || ''
+            });
+          }
+        } catch (err) {
+          console.error("Failed to fetch meeting", err);
+        }
+      };
+      fetchMeeting();
     }
   }, [id, isEditMode]);
 
@@ -92,19 +97,20 @@ export default function AdminMeetingForm() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     const action = isEditMode ? 'updateMeeting' : 'createMeeting';
     const payload = { ...formData, id: id };
     
-    // api.post(action, payload).then(() => navigate('/admin'))
-    
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await api.post(action, payload);
       navigate('/admin');
-    }, 1000);
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      setLoading(false);
+    }
   };
 
   return (

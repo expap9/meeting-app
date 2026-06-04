@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaPlus, FaTrash, FaCog, FaHistory } from 'react-icons/fa';
+import { api } from '../api';
 
 export default function AdminDashboard() {
   const [meetings, setMeetings] = useState([]);
@@ -16,34 +17,51 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('active'); // active, history, settings
 
   useEffect(() => {
-    // Mock Fetch
-    setTimeout(() => {
-      setMeetings([
-        { id: 'MTG-001', title: 'การประชุมวิชาการประจำปี 2026', date: '15 ก.ค. 2026', status: 'ACTIVE' },
-        { id: 'MTG-002', title: 'สัมมนาการใช้ AI ในโรงพยาบาล', date: '10 ม.ค. 2025', status: 'HISTORY' }
-      ]);
-      setSettings({
-        siteTitle: 'ระบบลงทะเบียนการประชุมออนไลน์',
-        siteSubtitle: 'ยินดีต้อนรับสู่ระบบลงทะเบียน'
-      });
-      setLoading(false);
-    }, 800);
+    const fetchData = async () => {
+      try {
+        const [meetingsData, settingsData] = await Promise.all([
+          api.get('getMeetings'),
+          api.get('getSettings')
+        ]);
+        setMeetings(meetingsData || []);
+        setSettings({
+          siteTitle: settingsData.siteTitle || '',
+          siteSubtitle: settingsData.siteSubtitle || '',
+          contactName: settingsData.contactName || '',
+          contactPhone: settingsData.contactPhone || '',
+          contactEmail: settingsData.contactEmail || ''
+        });
+      } catch (err) {
+        console.error('Failed to fetch data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการลบงานประชุมนี้?')) {
       setMeetings(meetings.filter(m => m.id !== id));
-      // Call GAS action=deleteMeeting
+      try {
+        await api.post('deleteMeeting', { meetingId: id });
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+      }
     }
   };
 
-  const handleSaveSettings = (e) => {
+  const handleSaveSettings = async (e) => {
     e.preventDefault();
     setSavingSettings(true);
-    setTimeout(() => {
-      setSavingSettings(false);
+    try {
+      await api.post('saveSettings', settings);
       alert('บันทึกการตั้งค่าเรียบร้อยแล้ว');
-    }, 1000);
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการบันทึกการตั้งค่า');
+    } finally {
+      setSavingSettings(false);
+    }
   };
 
   const activeMeetings = meetings.filter(m => m.status === 'ACTIVE' && new Date(m.deadline) > new Date());

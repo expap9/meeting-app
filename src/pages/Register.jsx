@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../api';
 
 export default function Register() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [meeting, setMeeting] = useState(null);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -16,11 +19,27 @@ export default function Register() {
     pdpaConsent: false
   });
 
+  useEffect(() => {
+    const fetchMeeting = async () => {
+      try {
+        const meetings = await api.get('getMeetings');
+        const m = meetings.find(item => String(item.id) === String(id));
+        setMeeting(m);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMeeting();
+  }, [id]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    // Basic sanitization on input
-    const sanitizedValue = type === 'checkbox' ? checked : value.replace(/[<>]/g, ''); 
-    setFormData({ ...formData, [name]: sanitizedValue });
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
   const validateForm = () => {
@@ -31,7 +50,7 @@ export default function Register() {
     return null;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
@@ -43,12 +62,24 @@ export default function Register() {
     
     setLoading(true);
     
-    // In production, fetch POST to GAS API with formData
-    // Example: fetch('GAS_URL', { method: 'POST', body: JSON.stringify({ action: 'register', payload: formData }) })
-    setTimeout(() => {
+    try {
+      const payload = {
+        meetingId: id,
+        meetingTitle: meeting?.title || 'Unknown',
+        ...formData
+      };
+      const res = await api.post('register', payload);
+      
+      if (res.status === 'success') {
+        navigate('/thank-you', { state: { meeting, registrationId: res.registrationId } });
+      } else {
+        setError("ลงทะเบียนไม่สำเร็จ: " + res.message);
+        setLoading(false);
+      }
+    } catch (err) {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
       setLoading(false);
-      navigate('/thank-you', { state: { regId: `REG-${Date.now()}` } });
-    }, 1500);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../api';
 import { FaCalendarAlt, FaMapMarkerAlt, FaUserTie } from 'react-icons/fa';
 import Countdown from '../components/Countdown';
 
@@ -27,15 +28,21 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In production, fetch from GAS API (both getMeetings and getSettings)
-    setTimeout(() => {
-      setMeetings(MOCK_MEETINGS);
-      setSettings({
-        siteTitle: 'ระบบลงทะเบียนการประชุมออนไลน์',
-        siteSubtitle: 'ยินดีต้อนรับสู่ระบบลงทะเบียน'
-      });
-      setLoading(false);
-    }, 800);
+    const fetchData = async () => {
+      try {
+        const [meetingsData, settingsData] = await Promise.all([
+          api.get('getMeetings'),
+          api.get('getSettings')
+        ]);
+        setMeetings(meetingsData || []);
+        setSettings(settingsData || {});
+      } catch (err) {
+        console.error('Failed to fetch data', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   return (
