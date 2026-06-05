@@ -331,15 +331,27 @@ function MeetingCard({ meeting, isActive, onDelete }) {
         </div>
       </div>
 
-      <div style={styles.cardActions}>
-        <Link to={`/admin/edit/${meeting.id}`} style={styles.editBtn}>
-          <FiEdit2 size={15} />
-          <span>แก้ไข</span>
-        </Link>
-        <button onClick={onDelete} style={styles.deleteBtn}>
-          <FiTrash2 size={15} />
-          <span>ลบ</span>
-        </button>
+      <div style={{ ...styles.cardActions, flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+          <Link to={`/admin/registrants/${meeting.id}`} style={{ ...styles.editBtn, background: '#eff6ff', color: '#3b82f6', flex: 1, justifyContent: 'center' }}>
+            <FiList size={15} />
+            <span>ดูรายชื่อ</span>
+          </Link>
+          <Link to={`/admin/scanner/${meeting.id}`} style={{ ...styles.editBtn, background: '#ecfdf5', color: '#10b981', flex: 1, justifyContent: 'center' }}>
+            <FiMaximize size={15} />
+            <span>สแกนเข้างาน</span>
+          </Link>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+          <Link to={`/admin/edit/${meeting.id}`} style={{ ...styles.editBtn, flex: 1, justifyContent: 'center' }}>
+            <FiEdit2 size={15} />
+            <span>แก้ไข</span>
+          </Link>
+          <button onClick={onDelete} style={{ ...styles.deleteBtn, flex: 1, justifyContent: 'center' }}>
+            <FiTrash2 size={15} />
+            <span>ลบ</span>
+          </button>
+        </div>
       </div>
     </div>
   );
