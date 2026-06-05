@@ -68,14 +68,20 @@ export default function AdminMeetingForm() {
     try {
       const reader = new FileReader();
       reader.onload = async () => {
-        const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
-        const res = await api.post('uploadFile', payload);
-        const url = res?.url || res?.fileUrl || '#';
-        setForm((prev) => ({
-          ...prev,
-          documents: [...prev.documents, { name: file.name, url }],
-        }));
-        setUploadingDoc(false);
+        try {
+          const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
+          const res = await api.post('uploadFile', payload);
+          if (res?.status === 'error') throw new Error(res.message);
+          const url = res?.url || res?.fileUrl || '#';
+          setForm((prev) => ({
+            ...prev,
+            documents: [...prev.documents, { name: file.name, url }],
+          }));
+        } catch (err) {
+          setMessage({ type: 'error', text: err.message || 'อัปโหลดเอกสารล้มเหลว' });
+        } finally {
+          setUploadingDoc(false);
+        }
       };
       reader.readAsDataURL(file);
     } catch {
@@ -91,11 +97,17 @@ export default function AdminMeetingForm() {
     try {
       const reader = new FileReader();
       reader.onload = async () => {
-        const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
-        const res = await api.post('uploadFile', payload);
-        const url = res?.url || res?.fileUrl || '';
-        setForm((prev) => ({ ...prev, speakerPhoto: url }));
-        setUploadingPhoto(false);
+        try {
+          const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
+          const res = await api.post('uploadFile', payload);
+          if (res?.status === 'error') throw new Error(res.message);
+          const url = res?.url || res?.fileUrl || '';
+          setForm((prev) => ({ ...prev, speakerPhoto: url }));
+        } catch (err) {
+          setMessage({ type: 'error', text: err.message || 'อัปโหลดรูปภาพล้มเหลว' });
+        } finally {
+          setUploadingPhoto(false);
+        }
       };
       reader.readAsDataURL(file);
     } catch {
