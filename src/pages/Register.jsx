@@ -37,6 +37,7 @@ export default function Register() {
     phone: '',
     organization: '',
     position: '',
+    specialRequest: '',
   });
   const [pdpaConsent, setPdpaConsent] = useState(false);
   const [errors, setErrors] = useState({});
@@ -122,6 +123,7 @@ export default function Register() {
         phone: form.phone.trim(),
         organization: form.organization.trim(),
         position: form.position.trim(),
+        specialRequest: form.specialRequest.trim(),
         pdpaConsent: true,
       };
       const res = await api.post('register', payload);
@@ -567,6 +569,21 @@ export default function Register() {
           {errors[f.key] && <div style={styles.errorText}>{errors[f.key]}</div>}
         </div>
       ))}
+      <div style={styles.fieldGroup}>
+        <label style={styles.label}>ต้องการความช่วยเหลืออะไรไหม (Optional)</label>
+        <textarea
+          value={form.specialRequest}
+          onChange={handleChange('specialRequest')}
+          placeholder="เช่น ต้องการวีลแชร์, อาหารมังสวิรัติ ฯลฯ"
+          rows={3}
+          style={{ ...styles.input(false), resize: 'vertical' }}
+          onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e0e0ee';
+            e.target.style.boxShadow = 'none';
+          }}
+        />
+      </div>
     </div>
   );
 

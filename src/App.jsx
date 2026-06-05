@@ -15,6 +15,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register/:id" element={<Register />} />
         <Route path="/thank-you" element={<ThankYou />} />
+        <Route path="/upload/:regId" element={<ThankYou />} />
         <Route path="/admin-login" element={<AdminAuth />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/create" element={<AdminMeetingForm />} />

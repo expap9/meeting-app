@@ -60,6 +60,7 @@ export default function AdminRegistrants() {
       'สถานะเช็คอิน': isCheckedIn(r.checkInStatus) ? 'เช็คอินแล้ว' : 'รอดำเนินการ',
       'เวลาเช็คอิน': r.checkInTime ? new Date(r.checkInTime).toLocaleString('th-TH') : '-',
       'จุดเช็คอิน': r.checkInLocation || '-',
+      'ต้องการความช่วยเหลือ': r.specialRequest || r.col15 || '-',
       'เอกสารแนบ': r.uploadedFileUrl || '-'
     }));
 
@@ -68,7 +69,7 @@ export default function AdminRegistrants() {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrants');
     
     const wscols = [
-      {wch: 8}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 30}
+      {wch: 8}, {wch: 15}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 25}, {wch: 30}
     ];
     worksheet['!cols'] = wscols;
 

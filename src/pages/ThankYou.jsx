@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { FaCheckCircle } from 'react-icons/fa';
 
 export default function ThankYou() {
   const location = useLocation();
-  const { meeting, registrationId } = location.state || {};
+  const { regId: paramRegId } = useParams();
+  const { meeting, registrationId: stateRegId } = location.state || {};
+  const registrationId = stateRegId || paramRegId;
 
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -351,7 +353,7 @@ export default function ThankYou() {
         <div style={s.uploadCard}>
           <h2 style={s.uploadTitle}>📎 อัปโหลดเอกสารเพิ่มเติม</h2>
           <p style={s.uploadSub}>
-            หากต้องการแนบเอกสาร เช่น สำเนาบัตรประจำตัว ใบรับรอง ฯลฯ
+            หากต้องการแนบเอกสารเพิ่มเติม
           </p>
 
           <div
