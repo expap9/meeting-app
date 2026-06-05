@@ -426,12 +426,27 @@ export default function Register() {
   const Step1 = () => (
     <div>
       {meeting.speakerPhotoUrl && (
-        <div style={{ marginBottom: 16, textAlign: 'center' }}>
-          <img 
-            src={meeting.speakerPhotoUrl} 
-            alt="Speaker or Promo" 
-            style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 12, objectFit: 'contain' }} 
-          />
+        <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            padding: 8,
+            background: '#ffffff',
+            borderRadius: 20,
+            boxShadow: '0 10px 30px -5px rgba(99, 102, 241, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+            border: '1px solid rgba(99, 102, 241, 0.08)',
+            display: 'inline-flex'
+          }}>
+            <img 
+              src={meeting.speakerPhotoUrl} 
+              alt="Speaker or Promo" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: 280, 
+                borderRadius: 14, 
+                objectFit: 'contain',
+                display: 'block'
+              }} 
+            />
+          </div>
         </div>
       )}
       <div style={styles.meetingCard}>
