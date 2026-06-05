@@ -1,29 +1,85 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
-import { FaCalendarAlt, FaMapMarkerAlt, FaUserTie } from 'react-icons/fa';
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaUserTie,
+  FaClock,
+  FaClipboardList,
+  FaUsers,
+  FaFileDownload,
+  FaArrowRight,
+  FaPhone,
+  FaEnvelope,
+  FaUserCircle,
+  FaHospital,
+  FaChevronDown,
+} from 'react-icons/fa';
 import Countdown from '../components/Countdown';
 
-// Mock data (replace with GAS fetch later)
-const MOCK_MEETINGS = [
-  {
-    id: 'MTG-001',
-    title: 'การประชุมวิชาการประจำปี 2026',
-    description: 'อัปเดตเทคโนโลยีทางการแพทย์และนวัตกรรม AI สำหรับโรงพยาบาลยุคใหม่',
-    date: '15 ก.ค. 2026',
-    time: '09:00 - 16:00 น.',
-    location: 'ห้องประชุมใหญ่ ชั้น 5',
-    speakerName: 'นพ. สมชาย ใจดี',
-    deadline: '2026-07-10T23:59:59',
-    documentUrl: '#'
+/* ——— helpers ——— */
+function getMeetingStatus(mtg) {
+  const now = new Date();
+  if (mtg.deadline) {
+    const dl = new Date(mtg.deadline);
+    if (dl <= now) return 'closed';
   }
-];
+  if (mtg.status === 'closed') return 'closed';
+  if (mtg.status === 'upcoming') return 'upcoming';
+  return 'active';
+}
 
+function StatusBadge({ status }) {
+  const map = {
+    active: {
+      label: 'กำลังเปิดรับสมัคร',
+      cls: 'badge badge-active',
+    },
+    closed: {
+      label: 'ปิดรับสมัครแล้ว',
+      cls: 'badge badge-closed',
+    },
+    upcoming: {
+      label: 'เร็ว ๆ นี้',
+      cls: 'badge badge-upcoming',
+    },
+  };
+  const info = map[status] || map.active;
+  return <span className={info.cls}>{info.label}</span>;
+}
+
+/* ——— Skeleton Loader ——— */
+function SkeletonCard({ delay = 0 }) {
+  return (
+    <div
+      className="glass-panel-static animate-fade-in"
+      style={{
+        padding: '2rem',
+        animationDelay: `${delay}s`,
+      }}
+    >
+      <div className="skeleton skeleton-pill" style={{ marginBottom: '1.25rem' }} />
+      <div className="skeleton skeleton-title" />
+      <div className="skeleton skeleton-text" />
+      <div className="skeleton skeleton-text" style={{ width: '85%' }} />
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', margin: '1.25rem 0' }}>
+        <div className="skeleton skeleton-pill" style={{ width: '7rem' }} />
+        <div className="skeleton skeleton-pill" style={{ width: '6rem' }} />
+        <div className="skeleton skeleton-pill" style={{ width: '9rem' }} />
+      </div>
+      <div className="skeleton" style={{ height: '4.5rem', borderRadius: '0.75rem', marginBottom: '1.5rem' }} />
+      <div className="skeleton skeleton-button" />
+    </div>
+  );
+}
+
+/* ——— Main Component ——— */
 export default function Home() {
   const [meetings, setMeetings] = useState([]);
   const [settings, setSettings] = useState({
     siteTitle: 'ระบบลงทะเบียนการประชุมออนไลน์',
-    siteSubtitle: 'กำลังโหลดตั้งค่า...'
+    siteSubtitle: '',
   });
   const [loading, setLoading] = useState(true);
 
@@ -32,10 +88,10 @@ export default function Home() {
       try {
         const [meetingsData, settingsData] = await Promise.all([
           api.get('getMeetings'),
-          api.get('getSettings')
+          api.get('getSettings'),
         ]);
         setMeetings(meetingsData || []);
-        setSettings(settingsData || {});
+        setSettings((prev) => ({ ...prev, ...(settingsData || {}) }));
       } catch (err) {
         console.error('Failed to fetch data', err);
       } finally {
@@ -45,76 +101,361 @@ export default function Home() {
     fetchData();
   }, []);
 
+  const stats = useMemo(() => {
+    const open = meetings.filter((m) => getMeetingStatus(m) === 'active').length;
+    const total = meetings.reduce((sum, m) => sum + (Number(m.registeredCount) || 0), 0);
+    return { open, total, all: meetings.length };
+  }, [meetings]);
+
   return (
-    <div className="container" style={{ padding: '3rem 1.5rem' }}>
-      <header style={{ textAlign: 'center', marginBottom: '4rem' }} className="animate-fade-in">
-        <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-          {settings.siteTitle}
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-          {settings.siteSubtitle}
-        </p>
-      </header>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* ═══════════════════ HERO ═══════════════════ */}
+      <section className="hero">
+        <div className="hero-content animate-fade-in">
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.12)',
+              border: '2px solid rgba(255,255,255,0.18)',
+              marginBottom: '1.5rem',
+            }}
+            className="animate-float"
+          >
+            <FaHospital size={32} color="#FFFFFF" />
+          </div>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '3rem' }}>กำลังโหลดข้อมูล...</div>
-      ) : (
-        <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-          {meetings.map((mtg, idx) => (
-            <div key={mtg.id} className="glass-panel animate-fade-in" style={{ padding: '2rem', animationDelay: `${idx * 0.1}s` }}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <span style={{ 
-                  background: 'var(--primary)', color: 'white', padding: '0.25rem 0.75rem', 
-                  borderRadius: '999px', fontSize: '0.8rem', fontWeight: '600'
-                }}>
-                  กำลังเปิดรับสมัคร
+          <h1 className="hero-title">{settings.siteTitle}</h1>
+
+          {settings.siteSubtitle && (
+            <p className="hero-subtitle">{settings.siteSubtitle}</p>
+          )}
+
+          <div
+            style={{
+              marginTop: '2rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              opacity: 0.5,
+              fontSize: '0.875rem',
+            }}
+            className="animate-pulse"
+          >
+            <FaChevronDown />
+            <span>เลื่อนลงเพื่อดูรายการประชุม</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════ STATS BAR ═══════════════════ */}
+      <div className="stats-bar animate-fade-in" style={{ animationDelay: '0.2s' }}>
+        <div className="stat-card">
+          <div className="stat-number text-gradient">{loading ? '—' : stats.all}</div>
+          <div className="stat-label">การประชุมทั้งหมด</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number" style={{ color: 'var(--emerald)' }}>
+            {loading ? '—' : stats.open}
+          </div>
+          <div className="stat-label">เปิดรับสมัคร</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number" style={{ color: 'var(--amber)' }}>
+            {loading ? '—' : stats.total}
+          </div>
+          <div className="stat-label">ผู้ลงทะเบียนทั้งหมด</div>
+        </div>
+      </div>
+
+      {/* ═══════════════════ MEETINGS GRID ═══════════════════ */}
+      <main className="container" style={{ flex: 1, paddingTop: '1rem', paddingBottom: '3rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '2rem',
+          }}
+          className="animate-fade-in"
+        >
+          <FaClipboardList size={20} color="var(--primary)" />
+          <h2
+            style={{
+              fontSize: 'var(--text-xl)',
+              fontWeight: 700,
+              color: 'var(--text-main)',
+            }}
+          >
+            รายการประชุมที่เปิดรับสมัคร
+          </h2>
+        </div>
+
+        {loading ? (
+          <div
+            style={{
+              display: 'grid',
+              gap: '1.5rem',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            }}
+          >
+            {[0, 1, 2].map((i) => (
+              <SkeletonCard key={i} delay={i * 0.12} />
+            ))}
+          </div>
+        ) : meetings.length === 0 ? (
+          <div
+            className="glass-panel-static animate-fade-in"
+            style={{
+              padding: '4rem 2rem',
+              textAlign: 'center',
+            }}
+          >
+            <FaCalendarAlt
+              size={48}
+              color="var(--text-faint)"
+              style={{ marginBottom: '1rem' }}
+            />
+            <h3
+              style={{
+                fontSize: 'var(--text-lg)',
+                fontWeight: 600,
+                color: 'var(--text-secondary)',
+                marginBottom: '0.5rem',
+              }}
+            >
+              ยังไม่มีการประชุมในขณะนี้
+            </h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+              กรุณากลับมาตรวจสอบอีกครั้งในภายหลัง
+            </p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'grid',
+              gap: '1.5rem',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            }}
+          >
+            {meetings.map((mtg, idx) => {
+              const status = getMeetingStatus(mtg);
+              const isClosed = status === 'closed';
+
+              return (
+                <div
+                  key={mtg.id}
+                  className="glass-panel animate-fade-in"
+                  style={{
+                    padding: '1.75rem',
+                    animationDelay: `${idx * 0.1}s`,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Decorative corner accent */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      width: 80,
+                      height: 80,
+                      background: isClosed
+                        ? 'linear-gradient(135deg, transparent 50%, rgba(239,68,68,0.06) 100%)'
+                        : 'linear-gradient(135deg, transparent 50%, rgba(59,130,246,0.06) 100%)',
+                      borderRadius: '0 var(--radius-2xl) 0 0',
+                      pointerEvents: 'none',
+                    }}
+                  />
+
+                  {/* Status badge */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <StatusBadge status={status} />
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    style={{
+                      fontSize: 'var(--text-xl)',
+                      fontWeight: 700,
+                      color: 'var(--text-main)',
+                      marginBottom: '0.5rem',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {mtg.title}
+                  </h3>
+
+                  {/* Description */}
+                  {mtg.description && (
+                    <p
+                      className="line-clamp-3"
+                      style={{
+                        color: 'var(--text-muted)',
+                        fontSize: 'var(--text-sm)',
+                        marginBottom: '1.25rem',
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {mtg.description}
+                    </p>
+                  )}
+
+                  {/* Info pills */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '0.5rem',
+                      marginBottom: '1.5rem',
+                    }}
+                  >
+                    {mtg.date && (
+                      <span className="info-pill">
+                        <FaCalendarAlt /> {mtg.date}
+                      </span>
+                    )}
+                    {mtg.time && (
+                      <span className="info-pill">
+                        <FaClock /> {mtg.time}
+                      </span>
+                    )}
+                    {mtg.location && (
+                      <span className="info-pill">
+                        <FaMapMarkerAlt /> {mtg.location}
+                      </span>
+                    )}
+                    {mtg.speakerName && (
+                      <span className="info-pill">
+                        <FaUserTie /> {mtg.speakerName}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Countdown */}
+                  {!isClosed && mtg.deadline && (
+                    <div
+                      style={{
+                        marginBottom: '1.5rem',
+                        padding: '1rem',
+                        background: 'var(--danger-muted)',
+                        borderRadius: 'var(--radius-lg)',
+                        border: '1px solid rgba(239,68,68,0.12)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--danger)',
+                          marginBottom: '0.5rem',
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.375rem',
+                        }}
+                      >
+                        <FaClock size={11} />
+                        ปิดรับสมัครในอีก
+                      </div>
+                      <Countdown targetDate={mtg.deadline} />
+                    </div>
+                  )}
+
+                  {/* Spacer to push buttons to bottom */}
+                  <div style={{ flex: 1 }} />
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {isClosed ? (
+                      <div
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          textAlign: 'center',
+                          borderRadius: 'var(--radius-lg)',
+                          background: 'var(--border-light)',
+                          color: 'var(--text-faint)',
+                          fontWeight: 600,
+                          fontSize: 'var(--text-sm)',
+                          cursor: 'not-allowed',
+                        }}
+                      >
+                        ปิดรับสมัครแล้ว
+                      </div>
+                    ) : (
+                      <Link
+                        to={`/register/${mtg.id}`}
+                        className="btn btn-primary"
+                        style={{ width: '100%' }}
+                      >
+                        ลงทะเบียนเข้าร่วม
+                        <FaArrowRight size={14} />
+                      </Link>
+                    )}
+
+                    {mtg.documentUrl && mtg.documentUrl !== '#' && (
+                      <a
+                        href={mtg.documentUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ width: '100%' }}
+                      >
+                        <FaFileDownload size={15} />
+                        ดาวน์โหลดเอกสารประกอบ
+                      </a>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* ═══════════════════ FOOTER ═══════════════════ */}
+      {!loading &&
+        (settings.contactName || settings.contactPhone || settings.contactEmail) && (
+          <footer className="site-footer animate-fade-in">
+            <h3 className="footer-title">
+              <FaUsers
+                size={18}
+                style={{ verticalAlign: 'middle', marginRight: 8, color: 'var(--primary)' }}
+              />
+              ติดต่อสอบถามเพิ่มเติม
+            </h3>
+
+            <div className="footer-info">
+              {settings.contactName && (
+                <span className="footer-item">
+                  <FaUserCircle />
+                  {settings.contactName}
                 </span>
-              </div>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{mtg.title}</h2>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>{mtg.description}</p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FaCalendarAlt color="var(--primary)" /> <span>{mtg.date} | {mtg.time}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FaMapMarkerAlt color="var(--primary)" /> <span>{mtg.location}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FaUserTie color="var(--primary)" /> <span>วิทยากร: {mtg.speakerName}</span>
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ fontSize: '0.9rem', color: 'var(--danger)', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  ปิดรับสมัครในอีก:
-                </div>
-                <Countdown targetDate={mtg.deadline} />
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-                <Link to={`/register/${mtg.id}`} className="btn btn-primary" style={{ width: '100%' }}>
-                  ลงทะเบียนเข้าร่วม
-                </Link>
-                {mtg.documentUrl && mtg.documentUrl !== '#' && (
-                  <a href={mtg.documentUrl} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ width: '100%', textAlign: 'center' }}>
-                    ดาวน์โหลดเอกสาร (PDF)
-                  </a>
-                )}
-              </div>
+              )}
+              {settings.contactPhone && (
+                <span className="footer-item">
+                  <FaPhone />
+                  {settings.contactPhone}
+                </span>
+              )}
+              {settings.contactEmail && (
+                <span className="footer-item">
+                  <FaEnvelope />
+                  {settings.contactEmail}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-      {/* Contact Section */}
-      {!loading && (settings.contactName || settings.contactPhone || settings.contactEmail) && (
-        <div style={{ marginTop: '5rem', padding: '2rem', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
-          <h3 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>ติดต่อสอบถามเพิ่มเติม</h3>
-          {settings.contactName && <p style={{ color: 'var(--text-muted)' }}><strong>ผู้รับผิดชอบ:</strong> {settings.contactName}</p>}
-          {settings.contactPhone && <p style={{ color: 'var(--text-muted)' }}><strong>โทรศัพท์:</strong> {settings.contactPhone}</p>}
-          {settings.contactEmail && <p style={{ color: 'var(--text-muted)' }}><strong>อีเมล:</strong> {settings.contactEmail}</p>}
-        </div>
-      )}
+
+            <div className="footer-divider" />
+          </footer>
+        )}
     </div>
   );
 }
