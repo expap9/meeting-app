@@ -68,7 +68,7 @@ export default function AdminMeetingForm() {
     try {
       const reader = new FileReader();
       reader.onload = async () => {
-        const payload = { fileName: file.name, fileType: file.type, fileData: reader.result };
+        const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
         const res = await api.post('uploadFile', payload);
         const url = res?.url || res?.fileUrl || '#';
         setForm((prev) => ({
@@ -91,7 +91,7 @@ export default function AdminMeetingForm() {
     try {
       const reader = new FileReader();
       reader.onload = async () => {
-        const payload = { fileName: file.name, fileType: file.type, fileData: reader.result };
+        const payload = { filename: file.name, mimeType: file.type, base64: reader.result };
         const res = await api.post('uploadFile', payload);
         const url = res?.url || res?.fileUrl || '';
         setForm((prev) => ({ ...prev, speakerPhoto: url }));
