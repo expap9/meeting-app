@@ -240,13 +240,13 @@ export default function AdminMeetingForm() {
             <div style={styles.fieldGroup}>
               <label style={styles.label}>
                 <FiUser size={14} style={{ marginRight: 6 }} />
-                ชื่อวิทยากร
+                รายนามวิทยากร / ผู้รับผิดชอบโครงการ
               </label>
               <input
                 type="text"
                 value={form.speakerName}
                 onChange={(e) => handleChange('speakerName', e.target.value)}
-                placeholder="ชื่อ-นามสกุลวิทยากร"
+                placeholder="ชื่อวิทยากร (หลายคนได้) หรือ คณะผู้จัดงาน"
                 style={styles.input}
               />
             </div>
@@ -266,7 +266,7 @@ export default function AdminMeetingForm() {
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>
               <FiImage size={18} style={{ marginRight: 8 }} />
-              รูปวิทยากร
+              รูปภาพโปรโมท / วิทยากร
             </h2>
 
             {form.speakerPhoto ? (
@@ -294,7 +294,7 @@ export default function AdminMeetingForm() {
                 ) : (
                   <>
                     <FiImage size={32} color="#64748b" />
-                    <span style={styles.uploadText}>คลิกเพื่ออัปโหลดรูปวิทยากร</span>
+                    <span style={styles.uploadText}>คลิกเพื่ออัปโหลดรูปภาพโปรโมทงาน หรือรูปวิทยากร</span>
                     <span style={styles.uploadHint}>รองรับ JPG, PNG, WEBP</span>
                   </>
                 )}

@@ -334,7 +334,7 @@ export default function Home() {
                     )}
                     {mtg.speakerName && (
                       <span className="info-pill">
-                        <FaUserTie /> {mtg.speakerName}
+                        <FaUserTie /> วิทยากร/ผู้จัด: {mtg.speakerName}
                       </span>
                     )}
                   </div>
@@ -453,9 +453,15 @@ export default function Home() {
               )}
             </div>
 
-            <div className="footer-divider" />
           </footer>
         )}
+
+      {/* Admin Link at the very bottom */}
+      <div style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}>
+        <Link to="/admin-login" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <FaUserCircle /> สำหรับผู้ดูแลระบบ
+        </Link>
+      </div>
     </div>
   );
 }
