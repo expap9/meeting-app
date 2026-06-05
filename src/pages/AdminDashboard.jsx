@@ -5,6 +5,7 @@ import {
   FiMenu, FiX, FiCalendar, FiSettings, FiLogOut, FiPlus,
   FiEdit2, FiTrash2, FiMapPin, FiClock, FiUsers, FiSave,
   FiUser, FiPhone, FiMail, FiType, FiAlignLeft, FiCheckCircle, FiArchive,
+  FiList, FiMaximize
 } from 'react-icons/fi';
 
 export default function AdminDashboard() {

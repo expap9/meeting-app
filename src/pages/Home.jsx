@@ -49,6 +49,19 @@ function StatusBadge({ status }) {
   return <span className={info.cls}>{info.label}</span>;
 }
 
+const formatTimeString = (timeStr) => {
+  if (!timeStr) return '';
+  if (timeStr.includes('T')) {
+    try {
+      const d = new Date(timeStr);
+      if (!isNaN(d)) {
+        return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+      }
+    } catch { }
+  }
+  return timeStr;
+};
+
 /* ——— Skeleton Loader ——— */
 function SkeletonCard({ delay = 0 }) {
   return (
@@ -312,30 +325,36 @@ export default function Home() {
                   <div
                     style={{
                       display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.5rem',
+                      flexDirection: 'column',
+                      gap: '0.75rem',
                       marginBottom: '1.5rem',
                     }}
                   >
-                    {mtg.date && (
-                      <span className="info-pill">
-                        <FaCalendarAlt /> {mtg.date}
-                      </span>
-                    )}
-                    {mtg.time && (
-                      <span className="info-pill">
-                        <FaClock /> {mtg.time}
-                      </span>
-                    )}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      {mtg.date && (
+                        <span className="info-pill">
+                          <FaCalendarAlt /> {mtg.date}
+                        </span>
+                      )}
+                      {mtg.time && (
+                        <span className="info-pill">
+                          <FaClock /> {formatTimeString(mtg.time)}
+                        </span>
+                      )}
+                    </div>
                     {mtg.location && (
-                      <span className="info-pill">
-                        <FaMapMarkerAlt /> {mtg.location}
-                      </span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <span className="info-pill">
+                          <FaMapMarkerAlt /> {mtg.location}
+                        </span>
+                      </div>
                     )}
                     {mtg.speakerName && (
-                      <span className="info-pill">
-                        <FaUserTie /> วิทยากร/ผู้จัด: {mtg.speakerName}
-                      </span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <span className="info-pill">
+                          <FaUserTie /> วิทยากร/ผู้จัด: {mtg.speakerName}
+                        </span>
+                      </div>
                     )}
                   </div>
 

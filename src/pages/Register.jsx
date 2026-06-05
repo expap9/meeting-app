@@ -8,6 +8,19 @@ const STEPS = [
   { label: 'ยินยอม PDPA', icon: '🔒' },
 ];
 
+const formatTimeString = (timeStr) => {
+  if (!timeStr) return '';
+  if (timeStr.includes('T')) {
+    try {
+      const d = new Date(timeStr);
+      if (!isNaN(d)) {
+        return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+      }
+    } catch { }
+  }
+  return timeStr;
+};
+
 export default function Register() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -412,6 +425,15 @@ export default function Register() {
   /* ─── Step 1: Meeting Details ─── */
   const Step1 = () => (
     <div>
+      {meeting.speakerPhotoUrl && (
+        <div style={{ marginBottom: 16, textAlign: 'center' }}>
+          <img 
+            src={meeting.speakerPhotoUrl} 
+            alt="Speaker or Promo" 
+            style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 12, objectFit: 'contain' }} 
+          />
+        </div>
+      )}
       <div style={styles.meetingCard}>
         <h3 style={styles.meetingTitle}>
           {meeting.title || meeting.name || 'การประชุม'}
@@ -430,7 +452,7 @@ export default function Register() {
             <span style={styles.meetingIcon}>🕐</span>
             <span>
               <strong>เวลา:</strong>{' '}
-              {meeting.time || meeting.meetingTime}
+              {formatTimeString(meeting.time || meeting.meetingTime)}
             </span>
           </div>
         )}
@@ -443,12 +465,12 @@ export default function Register() {
             </span>
           </div>
         )}
-        {(meeting.speaker || meeting.organizer) && (
+        {(meeting.speaker || meeting.speakerName || meeting.organizer) && (
           <div style={styles.meetingRow}>
             <span style={styles.meetingIcon}>🎤</span>
             <span>
               <strong>วิทยากร:</strong>{' '}
-              {meeting.speaker || meeting.organizer}
+              {meeting.speaker || meeting.speakerName || meeting.organizer}
             </span>
           </div>
         )}
@@ -459,6 +481,32 @@ export default function Register() {
           </div>
         )}
       </div>
+
+      {meeting.documentUrl && (
+        <div style={{ marginBottom: 24, textAlign: 'center' }}>
+          <a 
+            href={meeting.documentUrl} 
+            target="_blank" 
+            rel="noreferrer" 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 20px',
+              backgroundColor: '#eff6ff',
+              color: '#3b82f6',
+              borderRadius: 8,
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: 14,
+              border: '1px solid #bfdbfe'
+            }}
+          >
+            📎 ดาวน์โหลดเอกสารประกอบ
+          </a>
+        </div>
+      )}
+
       <p
         style={{
           fontSize: 14,
@@ -582,7 +630,7 @@ export default function Register() {
     </div>
   );
 
-  const stepContent = [<Step1 key={0} />, <Step2 key={1} />, <Step3 key={2} />];
+  const stepContent = [Step1(), Step2(), Step3()];
 
   return (
     <div style={styles.page}>
@@ -599,7 +647,7 @@ export default function Register() {
             ขั้นตอนที่ {step + 1} จาก {STEPS.length} — {STEPS[step].label}
           </p>
 
-          <ProgressBar />
+          {ProgressBar()}
 
           {stepContent[step]}
 
