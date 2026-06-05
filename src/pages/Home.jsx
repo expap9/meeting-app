@@ -165,7 +165,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════ STATS BAR ═══════════════════ */}
       <div className="stats-bar animate-fade-in" style={{ animationDelay: '0.2s' }}>
         <div className="stat-card">
           <div className="stat-number text-gradient">{loading ? '—' : stats.all}</div>
@@ -176,12 +175,6 @@ export default function Home() {
             {loading ? '—' : stats.open}
           </div>
           <div className="stat-label">เปิดรับสมัคร</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number" style={{ color: 'var(--amber)' }}>
-            {loading ? '—' : stats.total}
-          </div>
-          <div className="stat-label">ผู้ลงทะเบียนทั้งหมด</div>
         </div>
       </div>
 
