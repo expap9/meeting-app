@@ -76,6 +76,42 @@ export default function AdminRegistrants() {
     XLSX.writeFile(workbook, `registrants_meeting_${id}.xlsx`);
   };
 
+  const handleDownloadLogs = async () => {
+    try {
+      const res = await api.post('getCheckInLogs', { meetingId: id });
+      let logs = [];
+      if (res && Array.isArray(res)) logs = res;
+      else if (res && res.data && Array.isArray(res.data)) logs = res.data;
+      
+      if (logs.length === 0) {
+        alert("ไม่มีประวัติการเช็คอินในระบบ");
+        return;
+      }
+
+      const dataForExcel = logs.map((log, index) => ({
+        'ลำดับ': index + 1,
+        'รหัสลงทะเบียน': log.registrationId || log.col1,
+        'ชื่อ-นามสกุล': log.fullName || log.col2,
+        'เวลาเช็คอิน': log.checkInTime || log.col3,
+        'จุดเช็คอิน': log.location || log.col4
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'CheckIn Logs');
+      
+      const wscols = [
+        {wch: 8}, {wch: 20}, {wch: 30}, {wch: 25}, {wch: 20}
+      ];
+      worksheet['!cols'] = wscols;
+
+      XLSX.writeFile(workbook, `checkin_logs_meeting_${id}.xlsx`);
+    } catch (err) {
+      console.error("Failed to fetch logs", err);
+      alert("ดาวน์โหลดประวัติล้มเหลว");
+    }
+  };
+
   const getStatusBadge = (status) => {
     if (isCheckedIn(status)) {
       return (
@@ -132,10 +168,16 @@ export default function AdminRegistrants() {
               <p style={styles.subtitle}>{meeting?.title || `รหัสการประชุม: ${id}`}</p>
             </div>
           </div>
-          <button style={styles.downloadButton} onClick={handleDownloadExcel} disabled={loading || registrants.length === 0}>
-            <FiDownload size={18} />
-            <span style={{ marginLeft: '8px' }}>ดาวน์โหลด Excel</span>
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button style={{ ...styles.downloadButton, backgroundColor: '#10b981', color: '#fff', border: 'none' }} onClick={handleDownloadLogs}>
+              <FiClock size={18} />
+              <span style={{ marginLeft: '8px' }}>ประวัติเช็คอิน</span>
+            </button>
+            <button style={styles.downloadButton} onClick={handleDownloadExcel} disabled={loading || registrants.length === 0}>
+              <FiDownload size={18} />
+              <span style={{ marginLeft: '8px' }}>รายชื่อทั้งหมด</span>
+            </button>
+          </div>
         </div>
 
         {loading ? (

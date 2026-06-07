@@ -46,7 +46,7 @@ const AdminScanner = () => {
         setScanResult({
           type: 'success',
           message: 'เช็คอินสำเร็จ',
-          attendeeName: res?.name || 'ผู้เข้าร่วม (ไม่ระบุชื่อ)',
+          attendeeName: res?.fullName || res?.name || 'ผู้เข้าร่วม (ไม่ระบุชื่อ)',
           time: new Date().toLocaleTimeString('th-TH')
         });
       } catch (err) {
